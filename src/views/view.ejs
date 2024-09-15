@@ -1,0 +1,25 @@
+<h1 class="mb-4">Update</h1>
+
+<form method="post" action="/update-signin">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" name="name" required value="<%= result.name %>">
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required value="<%= result.email %>">
+    </div>
+
+    <div class="mb-3">
+        <label for="phoneNo" class="form-label">Phone No</label>
+        <input type="number" class="form-control" id="phoneNo" name="phoneNo" required min="0" step="1" value="<%= result.phoneNo %>">
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required value="<%= result.password %>">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
