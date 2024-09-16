@@ -1,3 +1,4 @@
+import hashData from "../../../middleware/hashing.data.js";
 import UserModel from "../model/user.model.js";
 import jwt from "jsonwebtoken";
 
@@ -11,8 +12,9 @@ export default class UserController {
                 return res.render('login_you');  // Render login page on GET request
             }
         
-            const { email, password } = req.body;
-        
+            const {
+                 email, password } = req.body;
+    
             try {
                 const user = await UserModel.signup(email, password);
         
@@ -30,12 +32,14 @@ export default class UserController {
         
     // SignIn method
     async register(req, res) {
+        console.log(req.method);
         if (req.method === 'POST') {
 
-            const { name, email, password, phoneNo } = req.body;
+            const { name, email, password, mobile } = req.body;
             const userIP = req.ip || req.connection.remoteAddress;
+              const hashPassword=hashData(password);
             try {
-                const result = await UserModel.signIn(name, email, password, phoneNo, userIP);
+                const result = await UserModel.signIn(name, email, hashPassword, mobile, userIP);
     
                 if (!result) {
                     return res.status(400).send('Incorrect Credentials');

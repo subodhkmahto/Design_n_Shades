@@ -1,13 +1,16 @@
 import { ObjectId } from "mongodb";
 import { getDB } from "../../../public/config/db.js";
+import hashData from "../../../middleware/hashing.data.js";
+import validationData from "../../../middleware/validation.hashing.data.js";
 
 export default class UserModel {
 
-    constructor(_id, name, email, password) {
+    constructor(_id, name, email, password,mobile) {
         this._id = _id;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.mobile = mobile;
     }
 
     static async tableName() {
@@ -15,56 +18,69 @@ export default class UserModel {
         return db.collection('adm_user'); 
     }
 
-static async signIn(name, email, password, phoneNo, ip = 'unknown') {
-    try {
-        const table = await this.tableName();
-        // Fetch the last inserted user to get the last _id (assuming numeric _id, not ObjectId)
-        const lastUser = await table.find().sort({ _id: -1 }).limit(1).toArray();
-        const newId = lastUser.length ? lastUser[0]._id + 1 : 1; // Increment _id or set to 1
-
-        // Get current timestamp for creation and update
-        const currentTimestamp = new Date().toISOString();
-
-        // Create the new user object with additional fields
-        const newUser = {
-            _id: new ObjectId(), // Generate a new ObjectId for MongoDB
-            name: name,
-            email: email,
-            phoneNo: phoneNo,
-            password: password, // Ideally store hashed passwords, not plaintext
-            created_at: currentTimestamp,
-            updated_at: currentTimestamp,
-            ip: ip, // Optionally pass in IP address
-            status: 'active', // New users start as 'active'
-            role: 'user', // Default role can be 'user', 'admin' can be assigned later
-            last_login: null, // No login yet
-        };
-
-        // Insert the new user into the collection
-        await table.insertOne(newUser);
-
-        return newUser;
-    } catch (err) {
-        console.log('Error in signIn:', err);
+    static async signIn(name, email, password, phoneNo, ip = 'unknown') {
+        try {
+            const table = await this.tableName();
+            const lastUser = await table.find().sort({ _id: -1 }).limit(1).toArray();
+            const newId = lastUser.length ? lastUser[0]._id + 1 : 1;
+    
+            const hashPassword = await hashData(password);
+    
+            const currentTimestamp = new Date().toISOString();
+    
+            const newUser = {
+                _id: new ObjectId(),
+                name: name,
+                email: email,
+                phoneNo: phoneNo,
+                password: hashPassword,
+                created_at: currentTimestamp,
+                updated_at: currentTimestamp,
+                ip: ip,
+                status: 'active',
+                role: 'user',
+                last_login: null,
+            };
+    
+            console.log(newUser);
+    
+            await table.insertOne(newUser);
+    
+            return newUser;
+        } catch (err) {
+            console.log('Error in signIn:', err);
+        }
     }
-}
-
+    
 
     static async signup(email, password) {
         try {
-            const table = await this.tableName(); // Get the MongoDB collection
-            
-            console.log(email,password);
-            // Use MongoDB's `findOne` method to query by email and password
-            const user = await table.findOne({
-                email: email,
-                password: password,
-            });
+            // Get the MongoDB collection (assuming `this.tableName` returns the collection)
+            const table = await this.tableName();
 
-            console.log(user); // Log the found user (or null if not found)
-            return user; // Return the user if found, otherwise return null
+            console.log(email, password);
+
+            // Query MongoDB to find the user by email
+            const user = await table.findOne({ email: email });
+
+            // Check if user exists and validate password
+            if (user && user.password) {
+                const isPasswordValid = await validationData(password, user.password);
+                
+                if (!isPasswordValid) {
+                    console.log('Invalid credentials, please try again.');
+                    return null; // Optionally, return null if validation fails
+                } else {
+                    return user; // Return the user if the credentials are valid
+                }
+            } else {
+                console.log('User not found or invalid password.');
+                return null; // Optionally, return null if user is not found
+            }
+
         } catch (err) {
             console.log('Error in signup:', err);
         }
     }
+
 }

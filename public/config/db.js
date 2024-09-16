@@ -1,6 +1,9 @@
 import { MongoClient } from 'mongodb';
+import dotenv from 'dotenv';
 
-const url = 'mongodb://127.0.0.1:27017'; // MongoDB connection URL
+dotenv.config();
+
+const url = process.env.MONGO_UTL; // MongoDB connection URL
 let client; // To cache the DB instance after successful connection
 
 export const mongoDB = async () => {

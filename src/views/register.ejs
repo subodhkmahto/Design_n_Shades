@@ -1,6 +1,6 @@
 <h2>Register</h2>
 
-<form action="/register" method="POST">
+<form action="/user/register" method="POST">
     <!-- Name Input -->
     <div class="form-group">
         <label for="name">Name</label>
@@ -23,14 +23,27 @@
     <div class="form-group">
         <label for="password">Password</label>
         <input type="password" class="form-control" id="password" name="password" required>
+        <button type="button" class="btn btn-secondary" id="togglePassword">
+            <span class="glyphicon glyphicon-eye-open">view</span>
+        </button>
     </div>
 
     <!-- Checkbox -->
     <div class="form-group form-check">
-        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1" required>
         <label class="form-check-label" for="exampleCheck1">Check me out</label>
     </div>
 
     <!-- Submit Button -->
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const passwordField = document.getElementById('password');
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        this.querySelector('span').classList.toggle('glyphicon-eye-open');
+        this.querySelector('span').classList.toggle('glyphicon-eye-close');
+    });
+</script>

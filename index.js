@@ -1,10 +1,13 @@
 import express from 'express';
 import path from 'path';
+import dotenv from 'dotenv';
 import ProductController from './src/products/product.controller.js';
 import layout from'express-ejs-layouts';
 import validateRequest from './middleware/validation.middleware.js';
 import { mongoDB } from './public/config/db.js';
 import UserController from './src/users/controller/user.controller.js';
+
+dotenv.config();
 
 const usercontroller = new UserController();
 
@@ -23,27 +26,27 @@ server.use(express.static('public'));
 
 const productrout = new ProductController();
 
-server.get('/register', usercontroller.register);
-server.post('/register', usercontroller.register); // Handle POST request
+server.get('/user/register', usercontroller.register);
+server.post('/user/register', usercontroller.register); // Handle POST request
 
 
-server.get('/login_you', usercontroller.login_you);
-server.post('/login_you', usercontroller.login_you);
+server.get('/user/login_you', usercontroller.login_you);
+server.post('/user/login_you', usercontroller.login_you);
 
 
 // Serve static files
 // server.use(express.static(path.join(path.resolve(), 'public')));
 
 // Define routes
-server.get('/', productrout.getProducts);
-server.get('/new',productrout.getAddForm);
+server.get('/product', productrout.getProducts);
+server.get('/product/new',productrout.getAddForm);
 // server.post('/', validateRequest ,productrout.getAddNewProduct);
-server.post('/' ,productrout.getAddNewProduct);
+server.post('/product' ,productrout.getAddNewProduct);
 
-server.get('/update-product/:id', productrout.getUpdateProduct);
-server.post('/updated-product',productrout.postUpdateProduct);
+server.get('/product/update-product/:id', productrout.getUpdateProduct);
+server.post('/product/updated-product',productrout.postUpdateProduct);
 
-server.get('/delete-product/:id', productrout.deleteProduct);
+server.get('/product/delete-product/:id', productrout.deleteProduct);
 
 
 server.use(express.static('src/view'));
@@ -56,7 +59,9 @@ server.use(express.static('src/view'));
 // });
 
 // Starting the server and MongoDB connection
-server.listen(8084, () => {
+const port=process.env.PORT ||8080;
+
+server.listen(port, () => {
      mongoDB(); // Call the function to connect to MongoDB
-    console.log(`Server is running at http://localhost:8084`);
+    console.log(`Server is running at http://localhost:${port}/product`);
 });
