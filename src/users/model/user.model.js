@@ -43,10 +43,10 @@ export default class UserModel {
             };
     
             console.log(newUser);
+      console.log(hashPassword);
+            // await table.insertOne(newUser);
     
-            await table.insertOne(newUser);
-    
-            return newUser;
+            // return newUser;
         } catch (err) {
             console.log('Error in signIn:', err);
         }
