@@ -29,9 +29,8 @@ const productrout = new ProductController();
 server.get('/user/register', usercontroller.register);
 server.post('/user/register', usercontroller.register); // Handle POST request
 
-
-server.get('/user/login_you', usercontroller.login_you);
 server.post('/user/login_you', usercontroller.login_you);
+server.get('/user/login_you', usercontroller.login_you);
 
 
 // Serve static files
@@ -40,7 +39,8 @@ server.post('/user/login_you', usercontroller.login_you);
 // Define routes
 server.get('/product', productrout.getProducts);
 server.get('/product/new',productrout.getAddForm);
-// server.post('/', validateRequest ,productrout.getAddNewProduct);
+
+server.post('/', validateRequest ,productrout.getAddNewProduct);
 server.post('/product' ,productrout.getAddNewProduct);
 
 server.get('/product/update-product/:id', productrout.getUpdateProduct);
