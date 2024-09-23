@@ -1,6 +1,6 @@
 <h1 class="mb-4">Update Product</h1>
 
-<form method="post" action="/updated-product">
+<form method="post" action="/updated-product" enctype="multipart/form-data">
     <input type="hidden" class="form-control" id="id" name="id" value="<%= product.id %>">
     <div class="mb-3">
         <label for="name" class="form-label">Name of Product</label>
@@ -20,7 +20,8 @@
 
     <div class="mb-3">
         <label for="imageUrl" class="form-label">Image URL</label>
-        <input type="url" class="form-control" id="imageUrl" name="url" required value="<%= product.url %>">
+        <!-- <input type="url" class="form-control" id="imageUrl" name="imageUrl" required value="<%= product.imageUrl %>"> -->
+        <input type="file" class="form-control" id="imageUrl" name="imageUrl"   required value="<%= product.imageUrl %>">
     </div>
 
     <div class="mb-3 form-check">

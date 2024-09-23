@@ -1,66 +1,132 @@
-import hashData from "../../../middleware/hashing.data.js";
+import hashData from "../../../middleware/hashing_data.js";
+import validationData from "../../../middleware/validation_hashing_data.js";
 import UserModel from "../model/user.model.js";
-import jwt from "jsonwebtoken";
+import validationHashing from "../../../middleware/validation_hashing_data.js"
+import { generateToken } from "../../../middleware/jwt_outhentication.js";
+import sendMail from "../../../middleware/mailer.js";
+import flash from 'connect-flash';
+import { compare } from "bcrypt";
+import ProductModel from "../../products/product.model.js";
+
 
 export default class UserController {
-        // Signup method
-        async login_you(req, res) {
-            console.log(req.method);
-            const { email, password } = req.body;
-            if (req.method !== 'POST') {
-                return res.render('login_you');  // Render login page on GET request
+
+
+    async login_you(req, res) {
+        const { email, password } = req.body;
+    
+        if (req.method !== 'POST') {
+            return res.render('login_you');
+        }
+    
+        try {
+            const user = await UserModel.findByEmail(email);
+            if (!user) {
+                req.flash('warning', 'User not found.');
+                return res.render('login_you');
             }
-           
-                 
-            console.log(email,password);
+    
+            const isPasswordValid = await validationData(password, user.password);
+    
+            if (!isPasswordValid) {
+                req.flash('warning', 'Incorrect credentials, please try again.');
+                return res.render('login_you');
+            }
+    
+            // Successful login
+            const accessToken = await generateToken(user);
+            // console.log(accessToken);
+
+            req.session.userEmail=email;
+
+            res.cookie('token', accessToken, { httpOnly: true });
+    
+            // Fetch products here
+            const productTable=ProductModel.tableName();
+            
+            const products = await ProductModel.getAllProducts(); // Adjust according to your data fetching method
+            return res.render('product', { products });  // Pass products to the EJS template
+        } catch (err) {
+            console.error('Error during login:', err);
+            return res.status(500).send('Internal server error');
+        }
+    }
+    
+   
+        async register(req, res) {
             try {
-                const user = await UserModel.signup(email, password);
-                if (user !== null) {
-                    return res.render('product');  // Render product page on successful signup
+                if (req.method === 'POST') {
+                    const { name, email, password, mobile } = req.body;
+                    const userIP = req.ip || req.connection.remoteAddress;
+                    const result = await UserModel.signUp(name, email, password, mobile, userIP);
+                    
+                    if (result) {
+                        return res.render('login_you');
+                    } else {
+                        return res.render('register');
+                    }
                 } else {
-                    req.flash('warning', 'Incorrect credentials, please try again.');
-                    return res.render('login_you');  // Render login again if signup fails
+                    return res.render('register');
                 }
             } catch (err) {
-                console.error('Error during signup:', err);
-                return res.status(500).send('Internal server error');
+                console.error('Error during registration:', err);
+                return res.render('register', { error: 'Registration failed. Please try again.' });
             }
         }
         
-        async register(req, res) {
-            console.log(req.method);
-            if (req.method === 'POST') {
-                const { name, email, password, mobile } = req.body;
-                const userIP = req.ip || req.connection.remoteAddress;
+
+    async forgot_password(req, res) {  
+
+            if (req.method !== 'POST') {
+                return res.render('forgot_password'); // Correct spelling
+            }
         
-                try {
-                    const result = await UserModel.signIn(name, email, password, mobile, userIP);
+            const { email, password } = req.body;
         
-                    if (!result) {
-                        return res.status(400).send('Incorrect Credentials');
-                    } else {
-                        // Create token
-                        const token = jwt.sign(
-                            {
-                                userID: result.id,
-                                email: result.email,
-                            },
-                            'AIb6d35fvJM4O9pXqXQNla2jBCH9kuLz',
-                            {
-                                expiresIn: '1h',
-                            }
-                        );
-                        // Send token and render view
-                        return res.render('view', { token, result });
-                    }
-                } catch (err) {
-                    console.error('Error during login:', err);
-                    return res.status(500).send('Internal server error');
+            try {
+                const user = await UserModel.findByEmail(email);
+                // console.log('1');
+                if (!user) {
+                    req.flash('warning', 'User not found.');
+                    return res.render('register');
                 }
-            } else {
+
+                const mailer=sendMail(email);
+
+                const hashedPassword = await hashData(password);
+                // console.log('3');
+
+                // Update the user’s password directly in the database
+                const userTable = await UserModel.tableName();
+                await userTable.updateOne({ _id: user._id }, { $set: { password: hashedPassword } });
+                // console.log('4');
+
+                return res.render('login_you');
+            } catch (error) {
+                console.error('Error during password reset:', error);
+                req.flash('error', 'An error occurred. Please try again.');
                 return res.render('register');
             }
         }
+
+        async logout(req, res, next) {
+            try {
+                req.session.destroy(err => {
+                    if (err) {
+                        console.error('Error destroying session:', err);
+                        return next(err);  // Pass the error to the error-handling middleware
+                    }
+
+                    res.clearCookie('connect.sid');  // Clear the session cookie if needed
+                    res.clearCookie('lastVisit');  // Optionally clear the last visit cookie as well
+                    return res.redirect('/login_you');  // Redirect to login after successful logout
+                });
+            } catch (error) {
+                console.error('Error in logout process:', error);
+                return next(error);  // Handle any unexpected errors
+            }
+           }
+
         
-    
+        
 }

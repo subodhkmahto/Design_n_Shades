@@ -1,65 +1,61 @@
+import {getDB} from "../../public/config/db.js";
+
 export default class ProductModel {
-    constructor(id, name, desc, price, url) {
+    constructor(id, name, desc, price, imageUrl) {
         this.id = id;
         this.name = name;
         this.desc = desc;
         this.price = price;
-        this.url = url;
+        this.imageUrl = imageUrl;
     }
 
-    // Example static method to get all products
-    static getAllProducts() {
+    static async tableName() {
+        const db = await getDB();
+        return db.collection('products');
+    }
+
+    // Get all products from the database
+    static async getAllProducts() {
+        const collection = await this.tableName();
+        const products = await collection.find().toArray();  // Fetch all products
         return products;
     }
-    static addProduct(newProduct){
-         var product_new=new ProductModel(products.length+1, newProduct.name,  newProduct.desc,  newProduct.price, newProduct.url);
-         products.push(product_new);
+
+    // Add a new product to the database
+    static async addProduct(newProduct) {
+        const collection = await this.tableName();
+        const product = new ProductModel(
+            newProduct.id,
+            newProduct.name,
+            newProduct.desc,
+            newProduct.price,
+            newProduct.imageUrl
+        );
+        await collection.insertOne(product);  // Insert new product into the database
     }
 
-    static getProductById(id){
-
-        id = parseInt(id, 10);
-        // Find the product by id
-        const product = products.find(product => product.id === id);
-
-        // console.log(id);
-        console.log(product);
-
-        if (product != null) {
-            return product;
-        } else {
-            return false;
-        }
+    // Find product by ID
+    static async getProductById(id) {
+        const collection = await this.tableName();
+        const product = await collection.findOne({ id: parseInt(id, 10) });
+        return product || false;
     }
 
-    static updateProduct(ProudctIsUpdated){
-        ProudctIsUpdated.id = parseInt(ProudctIsUpdated.id, 10);
-        const index = products.findIndex(product => product.id === ProudctIsUpdated.id);
-        console.log(index);
-        if(index){
-        products[index]=ProudctIsUpdated;
-        return true;
-        }else{
-            return false;
-        }
+    // Update a product in the database
+    static async updateProduct(updatedProduct) {
+        const collection = await this.tableName();
+        const result = await collection.updateOne(
+            { id: parseInt(updatedProduct.id, 10) },
+            { $set: updatedProduct }
+        );
+        return result.modifiedCount > 0;
     }
-    static deleteProduct(id) {
-        id = parseInt(id, 10);
-        const index = products.findIndex(product => product.id === id);
-        if (index !== -1) {
-            products.splice(index, 1);
-            return true;
-        } else {
-            return false;
-        }
+
+    // Delete a product from the database
+    static async deleteProduct(id) {
+        const collection = await this.tableName();
+        const result = await collection.deleteOne({ id: parseInt(id, 10) });
+        return result.deletedCount > 0;
     }
-    
 }
 
-// Array to hold product instances
- var products = [
-    new ProductModel(1, 'iphone', 'Read human thoughts', 2342, 'https://m.media-amazon.com/images/I/313Cl7yn9rL._SY445_SX342_QL70_FMwebp_.jpg'),
-    new ProductModel(2, 'Psychology', 'All about nature', 2342, 'https://m.media-amazon.com/images/I/41-OnIuKflL._SX342_SY445_.jpg'),
-    new ProductModel(3, 'Maths', 'Everything is calculating', 2342, 'https://m.media-amazon.com/images/I/61HrYF1O3tL._SY466_.jpg'),
-    new ProductModel(4, 'Economics', 'All about financial', 2342, 'https://m.media-amazon.com/images/I/51FnaPKuNBL._SY445_SX342_.jpg')
-];

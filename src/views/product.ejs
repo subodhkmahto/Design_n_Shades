@@ -1,4 +1,12 @@
 
+            <% if (locals.lastVisit) { %>
+                <div class="alert alert-warning" role="alert">
+                    <p>Your last visit was on: <%= locals.lastVisit %></p>
+                    A simple warning alert—check it out!
+                </div>
+            <% } %>
+
+
         <table class="table table-bordered  header">
             <thead class="thead-dark">
                 <tr>
@@ -18,7 +26,7 @@
                     <td><%= product.name %></td>
                     <td><%= product.desc %></td>
                     <td><%= product.price %></td>
-                    <td><img src="<%= product.url %>" alt="<%= product.name %> Image" class="img-fluid" /></td>
+                    <td><img src="<%= product.imageUrl %>" alt="<%= product.name %> Image" class="img-fluid" /></td>
                     <td><a href="/product/update-product/<%=product.id%>" class="btn btn-primary">Update</a></td>
                     <td>
                         <button class="btn btn-primary" onclick="deleteProduct('<%= product.id %>')">Delete</button>

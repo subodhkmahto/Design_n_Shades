@@ -10,10 +10,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-   <script src="main.js"></script>
-   <link rel="stylesheet" href="/css/style1.css">
-   <link rel="stylesheet" href="/css/login.css">
-
+    <script src="main.js"></script>
+    <link rel="stylesheet" href="/css/style1.css">
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -37,7 +36,16 @@
                 <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
-            <ul class="navbar-nav ml-auto">
+            <% if(locals.userEmail){ %>
+                <div class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                <a class="nav-link" href="/user/login_out">
+                    <i class="fas fa-sign-in-alt"></i> Logout
+                </a>
+                </li>
+                </div>
+            <% }else { %>
+             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="/user/login_you">
                         <i class="fas fa-sign-in-alt"></i> Login
@@ -46,11 +54,13 @@
                         <i class="fas fa-sign-in-alt"></i> Register You
                     </a>
                 </li>
+           
             </ul>
+            <% } %>
         </div>
     </nav>
     <div class="container mt-5">
-        <%- body %>
+        <%- body %> <!-- Dynamic content will be rendered here -->
     </div>
 </body>
 </html>

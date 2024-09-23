@@ -1,11 +1,11 @@
 import { ObjectId } from "mongodb";
 import { getDB } from "../../../public/config/db.js";
-import hashData from "../../../middleware/hashing.data.js";
-import validationData from "../../../middleware/validation.hashing.data.js";
+import hashData from "../../../middleware/hashing_data.js";
+import validationData from "../../../middleware/validation_hashing_data.js";
 
 export default class UserModel {
 
-    constructor(_id, name, email, password,mobile) {
+    constructor(_id, name, email, password, mobile) {
         this._id = _id;
         this.name = name;
         this.email = email;
@@ -13,74 +13,84 @@ export default class UserModel {
         this.mobile = mobile;
     }
 
+    // Helper function to get the collection
     static async tableName() {
-        const db = await getDB(); 
-        return db.collection('adm_user'); 
+        const db = await getDB();
+        return db.collection('adm_user');
     }
 
-    static async signIn(name, email, password, phoneNo, ip = 'unknown') {
+    static async signUp(name, email, password, mobile, ip = 'unknown') {
         try {
-            const table = await this.tableName();
-            const lastUser = await table.find().sort({ _id: -1 }).limit(1).toArray();
-            const newId = lastUser.length ? lastUser[0]._id + 1 : 1;
-    
-            const hashPassword = await hashData(password);
-    
-            const currentTimestamp = new Date().toISOString();
-    
+            const user = await this.tableName();
+            console.log(name, email, password, mobile, ip = 'unknown')
+            const existingUser = await user.findOne({ email });
+            console.log(existingUser);
+            if (existingUser!=null) {
+                console.log('User already exists with this email.');
+                return null; 
+            }
+            const hashedPassword = await hashData(password);
+            // console.log(hashedPassword);
             const newUser = {
-                _id: new ObjectId(),
-                name: name,
-                email: email,
-                phoneNo: phoneNo,
-                password: hashPassword,
-                created_at: currentTimestamp,
-                updated_at: currentTimestamp,
-                ip: ip,
+                _id: new ObjectId(), 
+                name:name,
+                email:email,
+                mobile:mobile, 
+                password: hashedPassword,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                ip:ip,
                 status: 'active',
                 role: 'user',
-                last_login: null,
+                last_login: new Date().toISOString(),
             };
-    
-            console.log(newUser);
-      console.log(hashPassword);
-            // await table.insertOne(newUser);
-    
-            // return newUser;
+            await user.insertOne(newUser);
+            return newUser; 
         } catch (err) {
-            console.log('Error in signIn:', err);
+            console.error('Error during signUp:', err);
+            throw new Error('Failed to sign up user.');
         }
     }
-    
 
-    static async signup(email, password) {
+    // Login method to authenticate a user
+    static async login(email, password) {
         try {
-            // Get the MongoDB collection (assuming `this.tableName` returns the collection)
             const table = await this.tableName();
 
-            console.log(email, password);
+            // Find the user by email
+            const user = await table.findOne({ email });
 
-            // Query MongoDB to find the user by email
-            const user = await table.findOne({ email: email });
-
-            // Check if user exists and validate password
-            if (user && user.password) {
-                const isPasswordValid = await validationData(password, user.password);
-                
-                if (!isPasswordValid) {
-                    console.log('Invalid credentials, please try again.');
-                    return null; // Optionally, return null if validation fails
-                } else {
-                    return user; // Return the user if the credentials are valid
-                }
-            } else {
-                console.log('User not found or invalid password.');
-                return null; // Optionally, return null if user is not found
+            if (!user) {
+                console.log('User not found.');
+                return null;
             }
 
+            // Validate the password
+            const isPasswordValid = await validationData(password, user.password);
+            if (!isPasswordValid) {
+                console.log('Invalid credentials.');
+                return null;
+            }
+
+            // Update last login time
+            await table.updateOne({ _id: user._id }, { $set: { last_login: new Date().toISOString() } });
+
+            return user; // Return user details on successful login
         } catch (err) {
-            console.log('Error in signup:', err);
+            console.error('Error during login:', err);
+            throw new Error('Failed to login user.');
         }
     }
+    // Method to find user by email
+    static async findByEmail(email) {
+            try {
+                const userTable = await this.tableName();
+                const user = await userTable.findOne({ email });
+                return user;  // Return user if found
+            } catch (err) {
+                console.error('Error finding user by email:', err);
+                throw new Error('Failed to find user by email.');
+            }
+     }
 
 }
