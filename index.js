@@ -14,6 +14,7 @@ import flash from 'connect-flash';
 import uploadFile from './middleware/file.upload.middleware.js';
 import { sessionAuth } from './middleware/session.auth.middleware.js';
 import { setLastVisit } from './middleware/cookies.last.visit.js';
+import ContactController from './src/cotact/contact.controller.js';
 
 
 
@@ -34,8 +35,9 @@ server.use(cookieParser());
 
 //pars from data
 
-server.use(express.urlencoded({ extended: true })); // For parsing form data (x-www-form-urlencoded)
-server.use(express.json()); // For parsing JSON data
+server.use(express.urlencoded({ extended: true })); // For form data (application/x-www-form-urlencoded)
+server.use(express.json()); // For JSON data
+
 server.use(layout);
 // Set EJS as the template engine
 server.set('view engine', 'ejs');
@@ -61,15 +63,18 @@ server.get('/user/forgot_password', usercontroller.forgot_password);
 // server.use(express.static(path.join(path.resolve(), 'public')));
 
 // Define routes
-server.get('/product', verifyToken, productrout.getProducts);
-server.get('/product/new',verifyToken,productrout.getAddForm);
+server.get('/product',  productrout.getProducts);
+server.get('/product/new',productrout.getAddForm);
 server.post('/product/new',sessionAuth, verifyToken,uploadFile.single('imageUrl'), productrout.getAddForm);
 
+const contacts=new ContactController();
+server.get('/contact',contacts.contactUser);
+server.post('/contact',contacts.contactUser);
 
-server.post('/', verifyToken,validateRequest ,productrout.getAddNewProduct);
-server.post('/product',verifyToken ,productrout.getAddNewProduct);
+server.post('/', validateRequest ,productrout.getAddNewProduct);
+server.post('/product' ,productrout.getAddNewProduct);
 
-server.get('/product/update-product/:id',verifyToken, productrout.getUpdateProduct);
+server.get('/product/update-product/:id', productrout.getUpdateProduct);
 server.post('/product/updated-product',verifyToken,productrout.postUpdateProduct);
 
 server.get('/product/delete-product/:id',verifyToken, productrout.deleteProduct);

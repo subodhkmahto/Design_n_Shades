@@ -14,12 +14,12 @@ export default class UserModel {
     }
 
     // Helper function to get the collection
-    static async tableName() {
+     async tableName() {
         const db = await getDB();
         return db.collection('adm_user');
     }
 
-    static async signUp(name, email, password, mobile, ip = 'unknown') {
+     async signUp(name, email, password, mobile, ip = 'unknown') {
         try {
             const user = await this.tableName();
             console.log(name, email, password, mobile, ip = 'unknown')
@@ -53,7 +53,7 @@ export default class UserModel {
     }
 
     // Login method to authenticate a user
-    static async login(email, password) {
+     async login(email, password) {
         try {
             const table = await this.tableName();
 
@@ -82,7 +82,7 @@ export default class UserModel {
         }
     }
     // Method to find user by email
-    static async findByEmail(email) {
+     async findByEmail(email) {
             try {
                 const userTable = await this.tableName();
                 const user = await userTable.findOne({ email });
