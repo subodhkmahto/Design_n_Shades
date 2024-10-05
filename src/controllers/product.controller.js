@@ -1,17 +1,14 @@
-// src/controller/product.controller.js
 import { render } from 'ejs';
-import ProductModel from './product.model.js';
+import ProductModel from '../models/product.model.js';
 import { ObjectId } from 'mongodb';
 import session from 'express-session';
 
 export default class ProductController {
 
-    // Method to get all products and render the product list view
     async getProducts(req, res) {
         try {
             const products = await ProductModel.getAllProducts();
-            // console.log(products);
-            return res.render('product', { products ,userEmail:req.session.userEmail });
+            return res.render('product/view', { products ,userEmail:req.session.userEmail });
         } catch (error) {
             console.error('Error fetching products:', error);
             return res.status(500).send('Internal Server Error');
@@ -24,7 +21,7 @@ export default class ProductController {
             console.log('Request method:', req.method);
     
             if (req.method !== 'POST') {
-                return res.render('new-product', { errorMessage: null,userEmail:req.session.userEmail });
+                return res.render('product/create', { errorMessage: null,userEmail:req.session.userEmail });
             }
             const { name, desc, price } = req.body;
 
@@ -35,10 +32,8 @@ export default class ProductController {
                 imageUrl_ = "images/" + req.file.filename;
             }
     
-            // Ensure that the tableName function returns a valid collection reference
             const productTable = await ProductModel.tableName();
     
-            // Create a new product object with form data and default values
             const productModel = {
                 name: name || 'Untitled',
                 desc: desc || 'No description',
@@ -46,21 +41,17 @@ export default class ProductController {
                 imageUrl: imageUrl_
             };
     
-            // Insert the product into the collection
             await productTable.insertOne(productModel);
     
             console.log('Product successfully added.');
     
-            // Fetch all products and render the 'product' view
             const products = await ProductModel.getAllProducts();
-            return res.render('product', { products ,userEmail:req.session.userEmail});
+            return res.render('view', { products ,userEmail:req.session.userEmail});
     
         } catch (error) {
-            // Log the error message for debugging
             console.error('Error while adding product:', error);
     
-            // In case of an error, return the 'new-product' form with an error message
-            return res.render('new-product', { errorMessage: 'Error adding product. Please try again.',userEmail:req.session.userEmail });
+            return res.render('create', { errorMessage: 'Error adding product. Please try again.',userEmail:req.session.userEmail });
         }
     }
     
@@ -112,7 +103,7 @@ export default class ProductController {
                 console.log('Product fetched:', product);
 
                 if (product) {
-                    return res.render('update-product', { product,userEmail:req.session.userEmail });
+                    return res.render('product/update', { product,userEmail:req.session.userEmail });
                 } else {
                     return res.status(404).send('Product not found');
                 }

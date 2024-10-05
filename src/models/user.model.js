@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
-import { getDB } from "../../../public/config/db.js";
-import hashData from "../../../middleware/hashing_data.js";
-import validationData from "../../../middleware/validation_hashing_data.js";
+import { getDB } from "../../public/config/db.js";
+import hashData from "../../middleware/hashing_data.js";
+import validationData from "../../middleware/validation_hashing_data.js";
 
 export default class UserModel {
 

@@ -1,12 +1,12 @@
-import hashData from "../../../middleware/hashing_data.js";
-import validationData from "../../../middleware/validation_hashing_data.js";
-import UserModel from "../model/user.model.js";
-import validationHashing from "../../../middleware/validation_hashing_data.js"
-import { generateToken } from "../../../middleware/jwt_outhentication.js";
-import sendMail from "../../../middleware/mailer.js";
+import hashData from "../../middleware/hashing_data.js";
+import validationData from "../../middleware/validation_hashing_data.js";
+import UserModel from "../models/user.model.js";
+import validationHashing from "../../middleware/validation_hashing_data.js"
+import { generateToken } from "../../middleware/jwt_outhentication.js";
+import sendMail from "../../middleware/mailer.js";
 import flash from 'connect-flash';
 import { compare } from "bcrypt";
-import ProductModel from "../../products/product.model.js";
+import ProductModel from "../models/product.model.js";
 
 
 export default class UserController {
@@ -16,21 +16,21 @@ export default class UserController {
         const { email, password } = req.body;
     
         if (req.method !== 'POST') {
-            return res.render('login_you');
+            return res.render('user/login_you');
         }
     
         try {
             const user = await UserModel.findByEmail(email);
             if (!user) {
                 req.flash('warning', 'User not found.');
-                return res.render('login_you');
+                return res.render('user/login_you');
             }
     
             const isPasswordValid = await validationData(password, user.password);
     
             if (!isPasswordValid) {
                 req.flash('warning', 'Incorrect credentials, please try again.');
-                return res.render('login_you');
+                return res.render('user/login_you');
             }
     
             // Successful login
@@ -45,7 +45,7 @@ export default class UserController {
             const productTable=ProductModel.tableName();
             
             const products = await ProductModel.getAllProducts(); // Adjust according to your data fetching method
-            return res.render('product', { products });  // Pass products to the EJS template
+            return res.render('product/view', { products });  // Pass products to the EJS template
         } catch (err) {
             console.error('Error during login:', err);
             return res.status(500).send('Internal server error');
@@ -61,16 +61,16 @@ export default class UserController {
                     const result = await UserModel.signUp(name, email, password, mobile, userIP);
                     
                     if (result) {
-                        return res.render('login_you');
+                        return res.render('user/login_you');
                     } else {
-                        return res.render('register');
+                        return res.render('user/register');
                     }
                 } else {
-                    return res.render('register');
+                    return res.render('user/register');
                 }
             } catch (err) {
                 console.error('Error during registration:', err);
-                return res.render('register', { error: 'Registration failed. Please try again.' });
+                return res.render('user/register', { error: 'Registration failed. Please try again.' });
             }
         }
         
@@ -78,7 +78,7 @@ export default class UserController {
     async forgot_password(req, res) {  
 
             if (req.method !== 'POST') {
-                return res.render('forgot_password'); // Correct spelling
+                return res.render('user/forgot_password'); // Correct spelling
             }
         
             const { email, password } = req.body;
@@ -88,7 +88,7 @@ export default class UserController {
                 // console.log('1');
                 if (!user) {
                     req.flash('warning', 'User not found.');
-                    return res.render('register');
+                    return res.render('user/register');
                 }
 
                 const mailer=sendMail(email);
@@ -101,11 +101,11 @@ export default class UserController {
                 await userTable.updateOne({ _id: user._id }, { $set: { password: hashedPassword } });
                 // console.log('4');
 
-                return res.render('login_you');
+                return res.render('user/login_you');
             } catch (error) {
                 console.error('Error during password reset:', error);
                 req.flash('error', 'An error occurred. Please try again.');
-                return res.render('register');
+                return res.render('user/register');
             }
         }
 
@@ -119,7 +119,7 @@ export default class UserController {
 
                     res.clearCookie('connect.sid');  // Clear the session cookie if needed
                     res.clearCookie('lastVisit');  // Optionally clear the last visit cookie as well
-                    return res.redirect('/login_you');  // Redirect to login after successful logout
+                    return res.redirect('user/login_you');  // Redirect to login after successful logout
                 });
             } catch (error) {
                 console.error('Error in logout process:', error);

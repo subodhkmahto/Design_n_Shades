@@ -1,13 +1,4 @@
-
-<% if (errorMessage) { %>
-    <div class="alert alert-danger" role="alert">
-        <%= errorMessage %>
-    </div>
-<% } %>
-
-<h1 class="mb-4 header">Add New Product</h1>
-
-<form method="post"  action="/product/new" enctype="multipart/form-data">
+<form method="post"  action="/product/new" enctype="multipart/form-data"></form>
     <div class="mb-3">
         <label for="name" class="form-label">Name of Product</label>
         <input type="text" class="form-control" id="name" name="name" required>

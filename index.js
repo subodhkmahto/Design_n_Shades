@@ -1,11 +1,11 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
-import ProductController from './src/products/product.controller.js';
+import ProductController from './src/controllers/product.controller.js';
 import layout from'express-ejs-layouts';
 import validateRequest from './middleware/validation.middleware.js';
 import { mongoDB } from './public/config/db.js';
-import UserController from './src/users/controller/user.controller.js';
+import UserController from './src/controllers/user.controller.js';
 import { verifyToken } from './middleware/jwt_outhentication.js'; 
 import cookieParser from 'cookie-parser';
 
@@ -14,7 +14,7 @@ import flash from 'connect-flash';
 import uploadFile from './middleware/file.upload.middleware.js';
 import { sessionAuth } from './middleware/session.auth.middleware.js';
 import { setLastVisit } from './middleware/cookies.last.visit.js';
-import ContactController from './src/cotact/contact.controller.js';
+import ContactController from './src/controllers/contact.controller.js';
 
 
 

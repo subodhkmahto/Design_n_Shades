@@ -1,18 +1,17 @@
-import ProductModel from "../products/product.model.js";
-import ContactModel from "./contact.model.js";
+import ProductModel from "../models/product.model.js";
+import ContactModel from "../models/contact.model.js";
 
 export default class ContactController {
 
   async contactUser(req, res) {
 
-    if (req.method !== 'POST') {
-        return res.render('contact');
-    }
+        if (req.method !== 'POST') {
+            return res.render('contact/create');
+        }
 
     try {
 
         const { name, email, mobile, message } = req.body;
-
         const contactData = {
             name,
             email,
