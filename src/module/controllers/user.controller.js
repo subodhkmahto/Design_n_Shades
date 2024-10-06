@@ -1,9 +1,9 @@
-import hashData from "../../middleware/hashing_data.js";
-import validationData from "../../middleware/validation_hashing_data.js";
+import hashData from "../../../middleware/hashing_data.js";
+import validationData from "../../../middleware/validation_hashing_data.js";
 import UserModel from "../models/user.model.js";
-import validationHashing from "../../middleware/validation_hashing_data.js"
-import { generateToken } from "../../middleware/jwt_outhentication.js";
-import sendMail from "../../middleware/mailer.js";
+import validationHashing from "../../../middleware/validation_hashing_data.js"
+import { generateToken } from "../../../middleware/jwt_outhentication.js";
+import sendMail from "../../../middleware/mailer.js";
 import flash from 'connect-flash';
 import { compare } from "bcrypt";
 import ProductModel from "../models/product.model.js";

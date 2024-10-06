@@ -1,99 +1,101 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
-import ProductController from './src/controllers/product.controller.js';
-import layout from'express-ejs-layouts';
-import validateRequest from './middleware/validation.middleware.js';
+import layout from 'express-ejs-layouts';
 import { mongoDB } from './public/config/db.js';
-import UserController from './src/controllers/user.controller.js';
-import { verifyToken } from './middleware/jwt_outhentication.js'; 
 import cookieParser from 'cookie-parser';
-
 import session from 'express-session';
 import flash from 'connect-flash';
-import uploadFile from './middleware/file.upload.middleware.js';
-import { sessionAuth } from './middleware/session.auth.middleware.js';
-import { setLastVisit } from './middleware/cookies.last.visit.js';
-import ContactController from './src/controllers/contact.controller.js';
-
-
+import userRouter    from './routes/user.router.js'; 
+import productRouter from './routes/product.router.js';
+import contactRouter from './routes/contact.router.js';
 
 dotenv.config();
 
-const usercontroller = new UserController();
 const server = express();
+
+// Session configuration
 server.use(session({
-    secret: 'your-secret', // Use a secure secret
+    secret: process.env.SESSION_SECRET || 'your-secret', // Ensure this is stored securely in environment variables
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Set true if using HTTPS
+    cookie: { secure: process.env.NODE_ENV === 'production' } // Use secure cookies in production
 }));
 
-server.use(flash());
+server.use(flash()); // Enable flash messages
+server.use(cookieParser()); // Parse cookies
 
-server.use(cookieParser());
+// Middleware to handle form and JSON data
+server.use(express.urlencoded({ extended: true })); // Handle form data
+server.use(express.json()); // Handle JSON data
 
-//pars from data
-
-server.use(express.urlencoded({ extended: true })); // For form data (application/x-www-form-urlencoded)
-server.use(express.json()); // For JSON data
-
+// Set up EJS layouts
 server.use(layout);
-// Set EJS as the template engine
 server.set('view engine', 'ejs');
-server.set('views', path.join(path.resolve(), 'src', 'views'));
-server.use(express.static('public'));
+server.set('views', path.resolve('src/module/views')); // Simplified path resolution
 
-const productrout = new ProductController();
+// Static files
+server.use(express.static(path.resolve('public'))); // Serve static files from the public folder
 
-server.get('/user/register', usercontroller.register);
-server.post('/user/register', usercontroller.register); // Handle POST request
+// Routes
+server.use('/', userRouter); 
+server.use('/', productRouter);
+server.use('/', contactRouter);
 
-
-// Example usage
-server.get('/user/logout', setLastVisit, usercontroller.logout);
-
-server.post('/user/login_you', usercontroller.login_you);
-server.get('/user/login_you', usercontroller.login_you);
-
-server.post('/user/password-reset', usercontroller.forgot_password);
-server.get('/user/forgot_password', usercontroller.forgot_password);
-
-// Serve static files
-// server.use(express.static(path.join(path.resolve(), 'public')));
-
-// Define routes
-server.get('/product',  productrout.getProducts);
-server.get('/product/new',productrout.getAddForm);
-server.post('/product/new',sessionAuth, verifyToken,uploadFile.single('imageUrl'), productrout.getAddForm);
-
-const contacts=new ContactController();
-server.get('/contact',contacts.contactUser);
-server.post('/contact',contacts.contactUser);
-
-server.post('/', validateRequest ,productrout.getAddNewProduct);
-server.post('/product' ,productrout.getAddNewProduct);
-
-server.get('/product/update-product/:id', productrout.getUpdateProduct);
-server.post('/product/updated-product',verifyToken,productrout.postUpdateProduct);
-
-server.get('/product/delete-product/:id',verifyToken, productrout.deleteProduct);
-
-
-
-server.use(express.static('src/view'));
-
-// import query  from 'express-validator';
-
-// server.use(express.json());
-// server.get('/hello', query('name').notEmpty(), (req, res) => {
-//   res.send(`Hello, ${req.query.person}!`);
-// });
-
-// Starting the server and MongoDB connection
-const port=process.env.PORT ||8080;
-
+// Start the server
+const port = process.env.PORT || 8080;
 server.listen(port, () => {
-     mongoDB(); // Call the function to connect to MongoDB
-    console.log(`Server is running at http://localhost:${port}/product`);
+    mongoDB(); // Connect to MongoDB when server starts
+    console.log(`Server is running at http://localhost:${port}`);
 });
+
+
+// import express from 'express';
+// import path from 'path';
+// import dotenv from 'dotenv';
+// import layout from 'express-ejs-layouts';
+// import { mongoDB } from './public/config/db.js';
+// import cookieParser from 'cookie-parser';
+// import session from 'express-session';
+// import flash from 'connect-flash';
+// import userRouter from './src/routes/user.router.js'; 
+// import productRouter from './src/routes/product.router.js';
+// import contactRouter from './src/routes/contact.router.js';
+
+// dotenv.config();
+
+// const server = express();
+// server.use(session({
+//     secret: 'your-secret', // Use a secure secret
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: { secure: false } // Set true if using HTTPS
+// }));
+
+// server.use(flash());
+// server.use(cookieParser());
+// server.use(express.urlencoded({ extended: true })); // For form data
+// server.use(express.json()); // For JSON data
+
+// server.use(layout);
+
+// server.set('view engine', 'ejs');
+// server.set('views', path.join(path.resolve(), 'src', 'module', 'views'));
+// server.use(express.static('public'));
+
+
+// server.use('/user', userRouter); 
+// server.use('/product',productRouter);
+// server.use('/contact',contactRouter);
+
+
+
+// server.use(express.static('src/view'));
+
+
+// const port = process.env.PORT || 8080;
+
+// server.listen(port, () => {
+//     mongoDB(); // Call the function to connect to MongoDB
+//     console.log(`Server is running at http://localhost:${port}`);
+// });

@@ -1,4 +1,4 @@
-import { getDB } from "../../public/config/db.js";
+import { getDB } from "../../../public/config/db.js";
 
 
 export default class ProductModel {
