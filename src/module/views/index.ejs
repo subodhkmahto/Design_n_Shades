@@ -18,45 +18,54 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">Inventory Management</a>
         <div class="collapse navbar-collapse" id="navbarNav">
+
             <ul class="navbar-nav mr-auto">
+
                 <li class="nav-item">
                     <a class="nav-link" href="/product">Home</a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="/contact">Contact</a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="/product">Product</a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="/product/new">New Product</a>
                 </li>
+
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
-            <% if(locals.userEmail){ %>
-                <div class="navbar-nav ml-auto">
+
+            <ul class="navbar-nav ml-auto">
+
+                <form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+
+                <% if (locals.userEmail) { %>
+
                     <li class="nav-item">
-                <a class="nav-link" href="/user/login_out">
-                    <i class="fas fa-sign-in-alt"></i> Logout
-                </a>
-                </li>
-                </div>
-            <% }else { %>
-             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/login_you">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </a>
-                    <a class="nav-link" href="/user/register">
-                        <i class="fas fa-sign-in-alt"></i> Register You
-                    </a>
-                </li>
-           
+                        <a class="nav-link" href="/login_out">Logout</a>
+                    </li>
+
+                <% } else { %>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login_you">Login</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">Register</a>
+                    </li>
+
+                <% } %>
+
             </ul>
-            <% } %>
+            
         </div>
     </nav>
     &nbsp;&nbsp;&nbsp;
